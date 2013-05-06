@@ -244,6 +244,10 @@ static int hwc_device_close(struct hw_device_t *dev)
 {
     struct hwc_context_t* ctx = (struct hwc_context_t*)dev;
     if (ctx) {
+        vc_dispmanx_resource_delete(ctx->resources[ctx->selectResource]);
+        ctx->selectResource = !ctx->selectResource;
+        vc_dispmanx_resource_delete(ctx->resources[ctx->selectResource]);
+        vc_dispmanx_display_close(ctx->disp);
         free(ctx);
     }
     return 0;
