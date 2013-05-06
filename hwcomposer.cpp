@@ -37,7 +37,10 @@
 
 struct hwc_context_t {
     hwc_composer_device_t device;
-	DISPMANX_DISPLAY_HANDLE_T disp;
+    DISPMANX_DISPLAY_HANDLE_T disp;
+    DISPMANX_MODEINFO_T info;
+    DISPMANX_RESOURCE_HANDLE_T resources[2];
+    bool selectResource;
 };
 
 struct hwc_layer_rd {
