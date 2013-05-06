@@ -285,6 +285,14 @@ static int hwc_device_open(const struct hw_module_t* module, const char* name,
 		bcm_host_init();
 		
 	    dev->disp = vc_dispmanx_display_open( 0 );
+        vc_dispmanx_display_get_info(dev->disp, &dev->info);
+
+        dev->resources[0] = vc_dispmanx_resource_create(convertDisplayFormatToImageType(dev->info.input_format),
+                dev->info.width, dev->info.height, NULL);
+        dev->resources[1] = vc_dispmanx_resource_create(convertDisplayFormatToImageType(dev->info.input_format),
+                dev->info.width, dev->info.height, NULL);
+
+        dev->selectResource = false;
 
     }
     return status;
