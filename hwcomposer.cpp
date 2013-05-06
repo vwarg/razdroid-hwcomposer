@@ -251,6 +251,14 @@ static int hwc_device_close(struct hw_device_t *dev)
 
 /*****************************************************************************/
 
+static VC_IMAGE_TYPE_T convertDisplayFormatToImageType(const DISPLAY_INPUT_FORMAT_T &format) {
+    VC_IMAGE_TYPE_T output_format = VC_IMAGE_RGB565;
+    if (format == VCOS_DISPLAY_INPUT_FORMAT_RGB888) {
+        output_format = VC_IMAGE_RGB888;
+    }
+    return output_format;
+}
+
 static int hwc_device_open(const struct hw_module_t* module, const char* name,
         struct hw_device_t** device)
 {
