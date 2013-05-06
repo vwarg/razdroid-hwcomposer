@@ -291,10 +291,12 @@ static int hwc_device_open(const struct hw_module_t* module, const char* name,
 	    dev->disp = vc_dispmanx_display_open( 0 );
         vc_dispmanx_display_get_info(dev->disp, &dev->info);
 
+        RECT_VARS_T *vars;
+        vars = &gRectVars;
         dev->resources[0] = vc_dispmanx_resource_create(convertDisplayFormatToImageType(dev->info.input_format),
-                dev->info.width, dev->info.height, NULL);
+                dev->info.width, dev->info.height, &vars->vc_image_ptr);
         dev->resources[1] = vc_dispmanx_resource_create(convertDisplayFormatToImageType(dev->info.input_format),
-                dev->info.width, dev->info.height, NULL);
+                dev->info.width, dev->info.height, &vars->vc_image_ptr);
 
         dev->selectResource = false;
 
