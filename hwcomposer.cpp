@@ -37,7 +37,10 @@
 
 struct hwc_context_t {
     hwc_composer_device_t device;
-	DISPMANX_DISPLAY_HANDLE_T disp;
+    DISPMANX_DISPLAY_HANDLE_T disp;
+    DISPMANX_MODEINFO_T info;
+    DISPMANX_RESOURCE_HANDLE_T resources[2];
+    bool selectResource;
 };
 
 struct hwc_layer_rd {
@@ -241,6 +244,10 @@ static int hwc_device_close(struct hw_device_t *dev)
 {
     struct hwc_context_t* ctx = (struct hwc_context_t*)dev;
     if (ctx) {
+        vc_dispmanx_resource_delete(ctx->resources[ctx->selectResource]);
+        ctx->selectResource = !ctx->selectResource;
+        vc_dispmanx_resource_delete(ctx->resources[ctx->selectResource]);
+        vc_dispmanx_display_close(ctx->disp);
         free(ctx);
     }
     free(lr);
@@ -248,6 +255,14 @@ static int hwc_device_close(struct hw_device_t *dev)
 }
 
 /*****************************************************************************/
+
+static VC_IMAGE_TYPE_T convertDisplayFormatToImageType(const DISPLAY_INPUT_FORMAT_T &format) {
+    VC_IMAGE_TYPE_T output_format = VC_IMAGE_RGB565;
+    if (format == VCOS_DISPLAY_INPUT_FORMAT_RGB888) {
+        output_format = VC_IMAGE_RGB888;
+    }
+    return output_format;
+}
 
 static int hwc_device_open(const struct hw_module_t* module, const char* name,
         struct hw_device_t** device)
@@ -276,6 +291,15 @@ static int hwc_device_open(const struct hw_module_t* module, const char* name,
 		
 	    dev->disp = vc_dispmanx_display_open( 0 );
 	lr = (struct hwc_layer_rd *)malloc(sizeof(struct hwc_layer_rd));
+
+        RECT_VARS_T *vars;
+        vars = &gRectVars;
+        dev->resources[0] = vc_dispmanx_resource_create(convertDisplayFormatToImageType(dev->info.input_format),
+                dev->info.width, dev->info.height, &vars->vc_image_ptr);
+        dev->resources[1] = vc_dispmanx_resource_create(convertDisplayFormatToImageType(dev->info.input_format),
+                dev->info.width, dev->info.height, &vars->vc_image_ptr);
+
+        dev->selectResource = false;
 
     }
     return status;
