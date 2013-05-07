@@ -61,7 +61,7 @@ typedef struct
 } RECT_VARS_T;
 
 static RECT_VARS_T  gRectVars;
-static hwc_layer_rd * lr
+static hwc_layer_rd * lr;
 
 
 static int hwc_device_open(const struct hw_module_t* module, const char* name,
