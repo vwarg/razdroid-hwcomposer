@@ -136,6 +136,12 @@ static VC_IMAGE_TYPE_T hwc_format_to_vc_format(struct hwc_layer_rd *layer){
 	return ret;
 }
 
+static void* hwc_get_frame_data(const int32_t pitch, const int32_t height) {
+    void* dst = malloc(pitch * height);
+    memset(dst, 0, sizeof(dst));
+    return dst;
+}
+
 static void hwc_actually_do_stuff_with_layer(hwc_composer_device_t *dev, hwc_layer_t *layer){
     RECT_VARS_T    *vars;
 	vars = &gRectVars;
