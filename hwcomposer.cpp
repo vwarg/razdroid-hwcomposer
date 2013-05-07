@@ -158,7 +158,8 @@ static void hwc_actually_do_stuff_with_layer(hwc_composer_device_t *dev, hwc_lay
 	int srcwidth = layer->sourceCrop.left - layer->sourceCrop.right;
 	int srcheight = layer->sourceCrop.top - layer->sourceCrop.bottom;
 
-    int dfpitch = ALIGN_UP(dfwidth*2, 32);
+    struct hwc_context_t* device_context = (struct hwc_context_t*)dev;
+    int dfpitch = ALIGN_UP(device_context->info.width*2, 32);
 	
 	vars->resource = vc_dispmanx_resource_create( type,
                                                   dfwidth,
