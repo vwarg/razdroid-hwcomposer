@@ -180,6 +180,14 @@ static void hwc_actually_do_stuff_with_layer(hwc_composer_device_t *dev, hwc_lay
 		return;
 	}
 	vc_dispmanx_rect_set( &dst_rect, layer->displayFrame.left, layer->displayFrame.top, layer->displayFrame.left+dfwidth, layer->displayFrame.top+dfheight);
+
+	DISPMANX_UPDATE_HANDLE_T update = vc_dispmanx_update_start(0);
+	vc_dispmanx_update_submit_sync(update);
+	if (ret != 0) {
+	    if (HWC_DBG) LOGD("vc_dispmanx_update_submit_sync failed. %d", ret);
+	    return;
+	}
+
 	device_context->selectResource = !device_context->selectResource;
 	free(frame);
 }
