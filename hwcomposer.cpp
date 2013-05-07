@@ -161,10 +161,6 @@ static void hwc_actually_do_stuff_with_layer(hwc_composer_device_t *dev, hwc_lay
     struct hwc_context_t* device_context = (struct hwc_context_t*)dev;
     int dfpitch = ALIGN_UP(device_context->info.width*2, 32);
 	
-	vars->resource = vc_dispmanx_resource_create( type,
-                                                  dfwidth,
-                                                  dfheight,
-                                                  &vars->vc_image_ptr );
 	vc_dispmanx_rect_set( &dst_rect, 0, 0, srcwidth, srcheight);
     int ret = vc_dispmanx_resource_write_data(  device_context->resources[device_context->selectResource],
 												type,
