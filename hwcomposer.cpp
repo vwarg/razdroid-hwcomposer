@@ -168,10 +168,11 @@ static void hwc_actually_do_stuff_with_layer(hwc_composer_device_t *dev, hwc_lay
     int dfpitch = ALIGN_UP(device_context->info.width*2, 32);
 	
 	vc_dispmanx_rect_set( &dst_rect, 0, 0, srcwidth, srcheight);
+	void* frame = hwc_get_frame_data(dfpitch, device_context->info.height);
     int ret = vc_dispmanx_resource_write_data(  device_context->resources[device_context->selectResource],
 												type,
 												dfpitch,
-												(void*)layer->handle,
+												frame,
 												&dst_rect );
 
 	if(ret != 0){
@@ -180,6 +181,7 @@ static void hwc_actually_do_stuff_with_layer(hwc_composer_device_t *dev, hwc_lay
 	}
 	vc_dispmanx_rect_set( &dst_rect, layer->displayFrame.left, layer->displayFrame.top, layer->displayFrame.left+dfwidth, layer->displayFrame.top+dfheight);
 	device_context->selectResource = !device_context->selectResource;
+	free(frame);
 }
 
 static void hwc_do_stuff_with_layer(hwc_composer_device_t *dev, hwc_layer_t *layer){
