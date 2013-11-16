@@ -159,10 +159,10 @@ static void hwc_actually_do_stuff_with_layer(hwc_composer_device_t *dev, hwc_lay
 	//layer->displayFrame.left/right/top/bottom is WHERE it should be displayed
 	//to solve this, we're going to need to make the buffer into an image, crop it, then apply to the displayFrame.
 	
-	int dfwidth = layer->displayFrame.left - layer->displayFrame.right;
-	int dfheight = layer->displayFrame.top - layer->displayFrame.bottom;
-	int srcwidth = layer->sourceCrop.left - layer->sourceCrop.right;
-	int srcheight = layer->sourceCrop.top - layer->sourceCrop.bottom;
+	int dfwidth = layer->displayFrame.right - layer->displayFrame.left;
+	int dfheight = layer->displayFrame.bottom - layer->displayFrame.top;
+	int srcwidth = layer->sourceCrop.right - layer->sourceCrop.left;
+	int srcheight = layer->sourceCrop.bottom - layer->sourceCrop.top;
 
     struct hwc_context_t* device_context = (struct hwc_context_t*)dev;
     int dfpitch = ALIGN_UP(device_context->info.width*2, 32);
