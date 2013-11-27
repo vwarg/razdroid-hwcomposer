@@ -231,7 +231,7 @@ static int hwc_set(hwc_composer_device_t *dev,
 			if(HWC_DBG)	LOGD("list == NULL");
 			return eglSwapBuffers((EGLDisplay)dpy, (EGLSurface)sur) ? 0 : HWC_EGL_ERROR;
 		}else{			//powering down screen, do nothing
-			return 0;
+
 		}
 	}
 	
