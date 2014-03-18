@@ -59,7 +59,7 @@ typedef struct
     uint32_t                    vc_image_ptr;
 
 } RECT_VARS_T;
-
+static DISPMANX_RESOURCE_HANDLE_T  layerResource;
 static RECT_VARS_T  gRectVars;
 static hwc_layer_rd * lr;
 
@@ -119,15 +119,15 @@ static bool hwc_can_render_layer(struct hwc_layer_rd *layer)
 }
 
 static VC_IMAGE_TYPE_T hwc_format_to_vc_format(struct hwc_layer_rd *layer){
-    VC_IMAGE_TYPE_T ret = VC_IMAGE_RGB565;
+    VC_IMAGE_TYPE_T ret = VC_IMAGE_RGBA32;
 	switch(layer->format){
 	case HAL_PIXEL_FORMAT_RGB_565:
 		ret=VC_IMAGE_RGB565;
 		break;
-    case HAL_PIXEL_FORMAT_RGBX_8888:
+	case HAL_PIXEL_FORMAT_RGBX_8888:
 		ret=VC_IMAGE_RGBX8888;
 		break;
-    case HAL_PIXEL_FORMAT_RGBA_8888:
+	case HAL_PIXEL_FORMAT_RGBA_8888:
 		ret=VC_IMAGE_RGBA32;
 		break;
 	default:
@@ -140,6 +140,17 @@ static void* hwc_get_frame_data(const int32_t pitch, const int32_t height) {
     void* dst = malloc(pitch * height);
     memset(dst, 0, sizeof(dst));
     return dst;
+}
+
+static void hwc_set_frame_data(void *frame, hwc_layer_t *layer) {
+    int dstpitch = ALIGN_UP(layer->displayFrame.right - layer->displayFrame.left*2, 32);
+    int srcpitch = ALIGN_UP(layer->sourceCrop.right - layer->sourceCrop.left*2, 32);
+	for (y = 0; y < h; y++) { 
+		uint8_t *src = (uint8_t *)layer->handle + srcpitch * y;
+		uint8_t *dst = (uint8_t *)frame + dstpitch * y;
+		memcpy(dst, src, dstpitch); 
+	}
+	
 }
 
 static void hwc_actually_do_stuff_with_layer(hwc_composer_device_t *dev, hwc_layer_t *layer){
@@ -165,11 +176,12 @@ static void hwc_actually_do_stuff_with_layer(hwc_composer_device_t *dev, hwc_lay
 	int srcheight = layer->sourceCrop.bottom - layer->sourceCrop.top;
 
     struct hwc_context_t* device_context = (struct hwc_context_t*)dev;
-    int dfpitch = ALIGN_UP(device_context->info.width*2, 32);
+    int dfpitch = ALIGN_UP(dfwidth*2, 32);
 	
-	vc_dispmanx_rect_set( &dst_rect, 0, 0, srcwidth, srcheight);
-	void* frame = hwc_get_frame_data(dfpitch, device_context->info.height);
-    int ret = vc_dispmanx_resource_write_data(  device_context->resources[device_context->selectResource],
+	vc_dispmanx_rect_set( &dst_rect, layer->displayFrame.left, layer->displayFrame.top, dfwidth, dfheight );
+	void* frame = hwc_get_frame_data(dfpitch, dfheight);
+	hwc_set_frame_data(frame, layer->handle, dfpitch);
+    int ret = vc_dispmanx_resource_write_data(  layerResource,
 												type,
 												dfpitch,
 												frame,
@@ -179,9 +191,28 @@ static void hwc_actually_do_stuff_with_layer(hwc_composer_device_t *dev, hwc_lay
 		if(HWC_DBG)	LOGD("vc_dispmanx_resource_write_data failed.");
 		return;
 	}
-	vc_dispmanx_rect_set( &dst_rect, layer->displayFrame.left, layer->displayFrame.top, layer->displayFrame.left+dfwidth, layer->displayFrame.top+dfheight);
+	vc_dispmanx_rect_set( &dst_rect, layer->displayFrame.left, layer->displayFrame.top, dfwidth, dfheight );
 
 	DISPMANX_UPDATE_HANDLE_T update = vc_dispmanx_update_start(0);
+	
+	vc_dispmanx_element_add(
+						update,
+						device_context->disp,
+						0/*layer*/,
+						&dst_rect,
+						layerResource,
+						&src_rect,
+						DISPMANX_PROTECTION_NONE,
+						0 /*alpha*/,
+						0/*clamp*/,
+						0/*transform*/
+						); 
+
+	
+	
+	
+	
+	
 	vc_dispmanx_update_submit_sync(update);
 	if (ret != 0) {
 	    if (HWC_DBG) LOGD("vc_dispmanx_update_submit_sync failed. %d", ret);
@@ -230,8 +261,6 @@ static int hwc_set(hwc_composer_device_t *dev,
 		if(dpy && sur){	//if we have dpy and sur, hwcomposer has been disabled. swap buffers and leave.
 			if(HWC_DBG)	LOGD("list == NULL");
 			return eglSwapBuffers((EGLDisplay)dpy, (EGLSurface)sur) ? 0 : HWC_EGL_ERROR;
-		}else{			//powering down screen, do nothing
-
 		}
 	}
 	
