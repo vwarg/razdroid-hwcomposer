@@ -208,7 +208,7 @@ static void hwc_actually_do_stuff_with_layer(hwc_composer_device_t *dev, hwc_lay
 						DISPMANX_PROTECTION_NONE,
 						0 /*alpha*/,
 						0/*clamp*/,
-						0/*transform*/
+						(DISPMANX_TRANSFORM_T) 0/*transform*/
 						); 
 
 	
