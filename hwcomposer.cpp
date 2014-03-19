@@ -180,7 +180,7 @@ static void hwc_actually_do_stuff_with_layer(hwc_composer_device_t *dev, hwc_lay
 	
 	vc_dispmanx_rect_set( &dst_rect, layer->displayFrame.left, layer->displayFrame.top, dfwidth, dfheight );
 	void* frame = hwc_get_frame_data(dfpitch, dfheight);
-	hwc_set_frame_data(frame, layer->handle, dfpitch);
+	hwc_set_frame_data(frame, layer, dfpitch);
     int ret = vc_dispmanx_resource_write_data(  layerResource,
 												type,
 												dfpitch,
