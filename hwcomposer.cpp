@@ -30,7 +30,7 @@
 
 #define HWC_DBG 1
 
-#ifndef ALIGN_UP(x,y)
+#ifndef ALIGN_UP
 #define ALIGN_UP(x,y)  ((x + (y)-1) & ~((y)-1))
 #endif
 /*****************************************************************************/
@@ -145,6 +145,8 @@ static void* hwc_get_frame_data(const int32_t pitch, const int32_t height) {
 static void hwc_set_frame_data(void *frame, hwc_layer_t *layer) {
     int dstpitch = ALIGN_UP(layer->displayFrame.right - layer->displayFrame.left*2, 32);
     int srcpitch = ALIGN_UP(layer->sourceCrop.right - layer->sourceCrop.left*2, 32);
+    int y;
+    int h = layer->displayFrame.bottom - layer->displayFrame.top;
 	for (y = 0; y < h; y++) { 
 		uint8_t *src = (uint8_t *)layer->handle + srcpitch * y;
 		uint8_t *dst = (uint8_t *)frame + dstpitch * y;
@@ -180,7 +182,7 @@ static void hwc_actually_do_stuff_with_layer(hwc_composer_device_t *dev, hwc_lay
 	
 	vc_dispmanx_rect_set( &dst_rect, layer->displayFrame.left, layer->displayFrame.top, dfwidth, dfheight );
 	void* frame = hwc_get_frame_data(dfpitch, dfheight);
-	hwc_set_frame_data(frame, layer, dfpitch);
+	hwc_set_frame_data(frame, layer);
     int ret = vc_dispmanx_resource_write_data(  layerResource,
 												type,
 												dfpitch,
