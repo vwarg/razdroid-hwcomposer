@@ -158,7 +158,7 @@ static void hwc_set_frame_data(void *frame, hwc_layer_t *layer) {
 static void hwc_actually_do_stuff_with_layer(hwc_composer_device_t *dev, hwc_layer_t *layer){
     RECT_VARS_T    *vars;
 	vars = &gRectVars;
-	VC_RECT_T       dst_rect;
+	VC_RECT_T       dst_rect, src_rect;
 	hwc_get_rd_layer(layer, lr);
 	VC_IMAGE_TYPE_T type = hwc_format_to_vc_format(lr);
 
@@ -181,6 +181,7 @@ static void hwc_actually_do_stuff_with_layer(hwc_composer_device_t *dev, hwc_lay
     int dfpitch = ALIGN_UP(dfwidth*2, 32);
 	
 	vc_dispmanx_rect_set( &dst_rect, layer->displayFrame.left, layer->displayFrame.top, dfwidth, dfheight );
+	vc_dispmanx_rect_set( &src_rect, 0, 0, 1920 << 16, 1080 << 16);
 	void* frame = hwc_get_frame_data(dfpitch, dfheight);
 	hwc_set_frame_data(frame, layer);
     int ret = vc_dispmanx_resource_write_data(  layerResource,
