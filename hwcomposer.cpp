@@ -277,7 +277,7 @@ static int hwc_set(hwc_composer_device_t *dev,
 	
 	
 	for (size_t i=0 ; i<list->numHwLayers ; i++) {
-        hwc_do_stuff_with_layer(dev, &list->hwLayers[i]);
+        hwc_do_stuff_with_layer(dev, list->hwLayers[i]);
     }
 	
 		
